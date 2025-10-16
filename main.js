@@ -1,3 +1,5 @@
+테스트를 위한 main.js입니다
+
 const baseUrl = 'https://panda-market-api-crud.vercel.app';
 
 export function getArticleList({ page = 1, pagesize = 10, keyword = '' } = {}) {
