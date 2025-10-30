@@ -1,0 +1,27 @@
+// How to run
+
+Install deps:
+npm install
+Initialize Prisma client and DB:
+npx prisma generate
+npx prisma migrate dev --name init
+Start the service:
+npm run dev
+Optional: open data browser
+npx prisma studio
+
+//Endpoints
+
+POST /products 201: create product
+Body: { name, description, price, tags }
+GET /products/:id 200/404: detail (id, name, description, price, tags, createdAt)
+PATCH /products/:id 200/404: partial update
+DELETE /products/:id 204/404
+GET /products 200: list with offset pagination, sort, search
+Query: offset, limit, sort=recent, q
+
+//Notes
+
+tags is stored as JSON array due to SQLite; validated as string[].
+price is Decimal in DB; serialized to number in API.
+Added optional helpful fields: slug (unique), status, stock without changing required API contracts.
