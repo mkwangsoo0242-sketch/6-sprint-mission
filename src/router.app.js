@@ -1,46 +1,22 @@
 import express, { json } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
-import { PrismaClient } from '@prisma/client';
-import { z } from 'zod';
-
-const prisma = new PrismaClient();
+import { join } from 'path';
+import { notFoundHandler, errorHandler } from './middlewares/errorHandler';
+import uploadsRouter from './routes/uploads';
+import productsRouter from './routes/products';
+import articlesRouter from './routes/articles';
 const app = express();
 
 app.use(cors());
 app.use(morgan('dev'));
 app.use(json());
+app.use('/uploads', express.static(join(process.cwd(), 'uploads')));
 
-// Validation Schemas
-const createProductSchema = z.object({
-  name: z.string().min(1),
-  description: z.string().min(1),
-  price: z.number().positive(),
-  tags: z.array(z.string().min(1)).default([]),
-});
-
-const updateProductSchema = z.object({
-  name: z.string().min(1).optional(),
-  description: z.string().min(1).optional(),
-  price: z.number().positive().optional(),
-  tags: z.array(z.string().min(1)).optional(),
-});
-
-// Comment Schemas
-const createCommentSchema = z.object({
-  content: z.string().min(1),
-});
-
-const updateCommentSchema = z.object({
-  content: z.string().min(1),
-});
-// Helper: map Product + tags
-function mapProductWithTags(product) {
-  const tags = (product.productTags || []).map((pt) => pt.tag.name);
-  const { productTags, ...rest } = product;
-  return { ...rest, tags };
-}
-
+// 라우터 마운트
+app.use('/uploads', uploadsRouter);
+app.use('/products', productsRouter);
+app.use('/articles', articlesRouter);
 // 상품 등록
 app.post('/products', async (req, res) => {
   try {
@@ -229,4 +205,7 @@ app.get('/products', async (req, res) => {
   }
 });
 
+// 404 및 에러 핸들러
+app.use(notFoundHandler);
+app.use(errorHandler);
 export default app;

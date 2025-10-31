@@ -135,3 +135,5 @@ app.get('/articles', async (req, res) => {
     res.status(500).json({ error: 'InternalServerError' });
   }
 });
+
+module.exports = app;
