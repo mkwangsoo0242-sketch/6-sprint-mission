@@ -6,7 +6,7 @@ import {
   updateProductSchema,
   createCommentSchema,
   updateCommentSchema,
-} from '../middlewares/validators';
+} from '../middlewares/validators.js';
 
 const prisma = new PrismaClient();
 const router = Router();

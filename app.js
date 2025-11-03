@@ -2,10 +2,10 @@ import express, { json } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import { join } from 'path';
-import { notFoundHandler, errorHandler } from './middlewares/errorHandler';
-import uploadsRouter from './src/routes/uploads';
-import productsRouter from './src/routes/products';
-import articlesRouter from './src/routes/articles';
+import errorHandler from './src/middlewares/errorHandler.js';
+import uploadsRouter from './src/routes/uploads.js';
+import productsRouter from './src/routes/products.js';
+import articlesRouter from './src/routes/articles.js';
 const app = express();
 
 app.use(cors());
@@ -206,6 +206,6 @@ app.get('/products', async (req, res) => {
 });
 
 // 404 및 에러 핸들러
-app.use(notFoundHandler);
+
 app.use(errorHandler);
 export default app;
