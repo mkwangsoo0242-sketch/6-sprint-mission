@@ -3,9 +3,9 @@ import cors from 'cors';
 import morgan from 'morgan';
 import { join } from 'path';
 import { notFoundHandler, errorHandler } from './middlewares/errorHandler';
-import uploadsRouter from './routes/uploads';
-import productsRouter from './routes/products';
-import articlesRouter from './routes/articles';
+import uploadsRouter from './src/routes/uploads';
+import productsRouter from './src/routes/products';
+import articlesRouter from './src/routes/articles';
 const app = express();
 
 app.use(cors());
