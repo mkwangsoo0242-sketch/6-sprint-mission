@@ -1,38 +1,41 @@
-POST http://localhost:3000/auth/register
+POST http://localhost:3000/api/auth/signup
 Content-Type: application/json
 
 {
-  "username": "testuser",
+  "email": "testuser1@example.com",
+  "nickname": "testuser1",
+  "password": "testpassword"
+}
+
+
+###
+
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "testuser1@example.com",
+  "nickname": "testuser1",
   "password": "testpassword"
 }
 
 ###
 
-POST http://localhost:3000/auth/login
-Content-Type: application/json
-
-{
-  "username": "testuser",
-  "password": "testpassword"
-}
+POST http://localhost:3000/api/auth/logout
 
 ###
 
-POST http://localhost:3000/auth/logout
-
-###
-
-POST http://localhost:3000/auth/refresh
+POST http://localhost:3000/api/auth/refresh
 Content-Type: application/json
 
 
 ###
 
-GET http://localhost:3000/posts
+GET http://localhost:3000/api/posts
 
 ### 
 
-POST http://localhost:3000/posts
+POST http://localhost:3000/api/posts
 Content-Type: application/json
 
 {

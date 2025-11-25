@@ -5,6 +5,7 @@ import { generateTokens, verifyRefreshToken } from '../lib/token.js';
 import {
   ACCESS_TOKEN_COOKIE_NAME,
   REFRESH_TOKEN_COOKIE_NAME,
+  NODE_ENV,
 } from '../lib/constants.js';
 
 const router = express.Router();
@@ -23,7 +24,7 @@ router.post('/signup', async (req, res) => {
       return res.status(409).json({ message: 'Email already exists' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     const user = await prisma.user.create({
       data: {
@@ -47,21 +48,39 @@ router.post('/signup', async (req, res) => {
 // Login
 router.post('/login', async (req, res) => {
   try {
+    // 1. 요청 본문(body)에서 email과 password를 가져옵니다.
     const { email, password } = req.body;
 
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+    // 2. 유효성 검사: email 또는 password가 없는 경우 에러 처리
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ message: '이메일과 비밀번호는 필수 입력 항목입니다.' });
     }
 
+    // 3. email로 사용자를 찾습니다.
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      return res
+        .status(401)
+        .json({ message: '인증 정보가 유효하지 않습니다.' });
+    }
+
+    // 4. 비밀번호를 비교합니다.
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res
+        .status(401)
+        .json({ message: '인증 정보가 유효하지 않습니다.' });
     }
 
+    // 5. 토큰을 생성합니다.
     const { accessToken, refreshToken } = generateTokens(user.id);
 
-    // Store refresh token
+    // 6. Refresh Token을 데이터베이스에 저장합니다.
     await prisma.refreshToken.create({
       data: {
         token: refreshToken,
@@ -69,10 +88,16 @@ router.post('/login', async (req, res) => {
       },
     });
 
-    res.cookie(ACCESS_TOKEN_COOKIE_NAME, accessToken, { httpOnly: true });
-    res.cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, { httpOnly: true });
+    // 7. 토큰을 쿠키에 담아 응답합니다.
+    const cookieOptions = {
+      httpOnly: true,
+      secure: NODE_ENV === 'production',
+      sameSite: 'lax',
+    };
+    res.cookie(ACCESS_TOKEN_COOKIE_NAME, accessToken, cookieOptions);
+    res.cookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken, cookieOptions);
 
-    res.json({ message: 'Login successful' });
+    res.json({ message: '로그인에 성공했습니다.' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal Server Error' });
@@ -129,9 +154,10 @@ router.post('/logout', async (req, res) => {
   try {
     const refreshToken = req.cookies[REFRESH_TOKEN_COOKIE_NAME];
     if (refreshToken) {
+      // Delete the token from DB only if it exists
       await prisma.refreshToken
         .delete({ where: { token: refreshToken } })
-        .catch(() => {});
+        .catch(() => {}); // Ignore errors if token is not found
     }
 
     res.clearCookie(ACCESS_TOKEN_COOKIE_NAME);
