@@ -6,6 +6,7 @@ import authRouter from './routers/auth.router.js';
 import usersRouter from './routers/users.router.js';
 import productsRouter from './routers/products.router.js';
 import articlesRouter from './routers/articles.router.js';
+import postsRouter from './routers/posts.router.js'; // 새로 만든 posts.router.js 임포트
 import commentsRouter from './routers/comments.router.js';
 import { PORT } from './lib/constants.js';
 
@@ -31,6 +32,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/articles', articlesRouter);
+app.use('/api/posts', postsRouter); // /api/posts 경로에 새로운 postsRouter 할당
 app.use('/api/comments', commentsRouter);
 
 // 404 handler for unmatched routes

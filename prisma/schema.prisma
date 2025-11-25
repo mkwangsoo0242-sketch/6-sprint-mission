@@ -9,64 +9,81 @@ datasource db {
 }
 
 model User {
-  id           Int            @id @default(autoincrement())
-  email        String         @unique
-  nickname     String
-  image        String?
-  password     String
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  
-  products     Product[]
-  articles     Article[]
-  comments     Comment[]
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  nickname  String
+  image     String?
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products      Product[]
+  articles      Article[]
+  posts         Post[]         @relation("Posts")
+  comments      Comment[]
   refreshTokens RefreshToken[]
-  
+
   // Likes (Implicit Many-to-Many)
-  likedProducts Product[]     @relation("ProductLikes")
-  likedArticles Article[]     @relation("ArticleLikes")
+  likedProducts Product[] @relation("ProductLikes")
+  likedArticles Article[] @relation("ArticleLikes")
+  likedPosts    Post[]    @relation("LikedPosts")
 }
 
 model Product {
-  id          Int       @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   title       String
   description String
   price       Int
   image       String?
   authorId    Int
-  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
-  comments    Comment[]
-  likedBy     User[]    @relation("ProductLikes")
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  comments Comment[]
+  likedBy  User[]    @relation("ProductLikes")
 }
 
 model Article {
-  id          Int       @id @default(autoincrement())
-  title       String
-  content     String
-  image       String?
-  authorId    Int
-  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
-  comments    Comment[]
-  likedBy     User[]    @relation("ArticleLikes")
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  image     String?
+  authorId  Int
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  comments Comment[]
+  likedBy  User[]    @relation("ArticleLikes")
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  image     String?
+  author    User     @relation("Posts", fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  Int
+  likedBy   User[]   @relation("LikedPosts")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 만약 Post에도 댓글 기능이 필요하다면 아래 관계를 추가합니다.
+  // comments    Comment[]
 }
 
 model Comment {
-  id          Int       @id @default(autoincrement())
-  content     String
-  authorId    Int
-  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  productId   Int?
-  product     Product?  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  articleId   Int?
-  article     Article?  @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id        Int      @id @default(autoincrement())
+  content   String
+  authorId  Int
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  productId Int?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  articleId Int?
+  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model RefreshToken {

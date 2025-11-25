@@ -39,17 +39,22 @@ POST http://localhost:3000/api/posts
 Content-Type: application/json
 
 {
+  "title": "새로운 게시글 제목",
   "content": "Hello, world!"
 }
 
+
 ###
 
-PUT http://localhost:3000/posts/1
+PATCH http://localhost:3000/api/posts/1
 Content-Type: application/json
 
 {
-  "content": "Hello, world! edit"
+  "title": "수정된 게시글 제목",
+  "content": "내용도 수정했습니다."
 }
+
+
 
 ###
 
