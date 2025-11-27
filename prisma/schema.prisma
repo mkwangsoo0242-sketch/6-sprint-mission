@@ -30,18 +30,26 @@ model User {
 }
 
 model Product {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String
-  price       Int
-  image       String?
-  authorId    Int
-  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String
+  price        Int
+  categoryName String? // 카테고리 이름 필드 추가
+  image        String?
+  authorId     Int
+  author       User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  category Category? @relation(fields: [categoryName], references: [name])
 
   comments Comment[]
   likedBy  User[]    @relation("ProductLikes")
+}
+
+model Category {
+  name    String    @id @unique
+  product Product[]
 }
 
 model Article {
