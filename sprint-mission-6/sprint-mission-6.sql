@@ -20,7 +20,8 @@ SELECT * FROM orders ORDER BY date DESC, time DESC LIMIT 10 OFFSET 0;
 SELECT * FROM orders ORDER BY date DESC, time DESC LIMIT 10 OFFSET 40;
 
 -- 7. `orders` 테이블에서 커서 페이지네이션된 목록을 조회합니다. 페이지 크기가 10이고 최신순일때, `id` 값을 기준으로 커서를 사용합시다. 커서의 값이 `42`일 때 다음 페이지를 조회하세요.
-SELECT * FROM orders WHERE id < 42 ORDER BY date DESC, time DESC LIMIT 10;
+-- id가 최신순(내림차순)을 의미한다고 가정하고 id를 기준으로 정렬합니다.
+SELECT * FROM orders WHERE id < 42 ORDER BY id DESC LIMIT 10;
 
 -- 8. `orders` 테이블에서 2025년 3월에 주문된 내역만 조회하세요.
 SELECT * FROM orders WHERE date >= '2025-03-01' AND date < '2025-04-01';
@@ -62,9 +63,11 @@ ORDER BY total_quantity DESC;
 
 
 -- 6. `order_details` 테이블에서 피자별 총 수익을 `total_revenue` 라는 이름으로 구하세요. (수익 = `quantity * price`)
-SELECT pizza_id, SUM(quantity * price) AS total_revenue
-FROM order_details
-GROUP BY pizza_id;      
+-- order_details에 price가 없을 경우를 대비해 pizzas 테이블과 JOIN하여 가격 정보를 가져옵니다.
+SELECT od.pizza_id, SUM(od.quantity * p.price) AS total_revenue
+FROM order_details od
+JOIN pizzas p ON od.pizza_id = p.id
+GROUP BY od.pizza_id;
 
 -- 7. 날짜별로 피자 주문 건수(`order_count`)와 총 주문 수량(`total_quantity`)을 구하세요.
 SELECT o.date, COUNT(od.order_id) AS order_count, SUM(od.quantity) AS total_quantity
@@ -121,7 +124,7 @@ SELECT o.date,
 FROM orders o
 JOIN order_details od ON o.id = od.order_id
 JOIN pizzas p ON od.pizza_id = p.id
-WHERE o.date >= '2025-03-01' AND o.date < '2025-04-01'
+WHERE DATE_FORMAT(o.date, '%Y-%m') = '2025-03'
 GROUP BY o.date
 ORDER BY o.date;        
     
@@ -194,4 +197,3 @@ JOIN pizzas p ON od.pizza_id = p.id
 JOIN pizza_types pt ON p.type_id = pt.id
 GROUP BY pt.name
 ORDER BY total_revenue DESC;            
-
